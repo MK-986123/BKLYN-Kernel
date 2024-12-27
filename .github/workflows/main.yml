@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up build environment
       run: |
@@ -29,13 +29,13 @@ jobs:
         echo "export PATH=$PATH:/usr/lib/ccache" >> $GITHUB_ENV
 
     - name: Configure the kernel
-      run: make gki_defconfig
+      run: make vendor/gki_defconfig
 
     - name: Build the kernel
       run: make -j$(nproc)
 
     - name: Archive build artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Kernel Build
         path: |
