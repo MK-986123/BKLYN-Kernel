@@ -1,0 +1,42 @@
+name: Compile Kernel
+
+on:
+  push:
+    branches:
+      - android14-6.1-lts
+  pull_request:
+    branches:
+      - android14-6.1-lts
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up build environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential bc curl gcc-aarch64-linux-gnu lzop libncurses5-dev git ccache
+
+    - name: Set environment variables
+      run: |
+        echo "export ARCH=arm64" >> $GITHUB_ENV
+        echo "export SUBARCH=arm64" >> $GITHUB_ENV
+        echo "export CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
+        echo "export PATH=$PATH:/usr/lib/ccache" >> $GITHUB_ENV
+
+    - name: Configure the kernel
+      run: make gki_defconfig
+
+    - name: Build the kernel
+      run: make -j$(nproc)
+
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Kernel Build
+        path: |
+          arch/arm64/boot/Image.gz-dtb
